@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-1.0
 pragma solidity ^0.8.0;
 
 contract Election {
@@ -12,7 +13,7 @@ contract Election {
 
     uint public candidatesCount;
     
-    constructor() public {
+    constructor() {
         addCandidate("Candidate 1");
         addCandidate("Candidate 2");
     }
