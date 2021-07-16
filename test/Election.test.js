@@ -15,7 +15,7 @@ describe('Election', () => {
         expect (await electionContract.candidatesCount()).to.equal(2);
     });
 
-    it('it initializes the candidates with the correct values', async function () {
+    it('initializes the candidates with the correct values', async function () {
         const candidate1 = await electionContract.candidates(1);
         const candidate2 = await electionContract.candidates(2);
         expect (candidate1.id).to.equal(1);
