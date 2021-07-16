@@ -10,3 +10,4 @@ module.exports =
             log: true
         });
 };
+module.exports.tags = ['Election'];

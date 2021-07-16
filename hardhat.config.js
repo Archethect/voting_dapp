@@ -1,4 +1,5 @@
 require("@nomiclabs/hardhat-ethers");
+require("@nomiclabs/hardhat-waffle");
 require('hardhat-deploy');
 
 const { infuraKey, mnemonic } = require('./secrets.json');
