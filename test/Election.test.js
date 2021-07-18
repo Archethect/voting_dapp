@@ -1,7 +1,7 @@
 const { ethers, deployments, getNamedAccounts } = require('hardhat');
 const { expect } = require("chai");
 
-describe('Election', () => {
+describe('Election',  () => {
 
     let electionContract;
 
@@ -24,5 +24,18 @@ describe('Election', () => {
         expect (candidate2.id).to.equal(2);
         expect (candidate2.name).to.equal("Candidate 2");
         expect (candidate2.voteCount).to.equal(0);
+    });
+
+    it('allows a voter to cast a vote', async function() {
+       const candidateId = 1;
+       [deployer, consumer1] = await ethers.getSigners();
+       const vote = await electionContract.connect(consumer1).vote(candidateId);
+       await vote.wait();
+       const consumerAddress = await consumer1.getAddress();
+       const voted = await electionContract.connect(consumer1).voters(consumerAddress);
+       expect(voted).to.equal(true);
+       const candidate = await electionContract.connect(consumer1).candidates(candidateId);
+       var voteCount = candidate[2];
+       expect (voteCount).to.equal(1);
     });
 });
