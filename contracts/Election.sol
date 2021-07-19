@@ -15,6 +15,10 @@ contract Election {
     mapping (address => bool) public voters;
 
     uint public candidatesCount;
+
+    event votedEvent (
+        uint indexed _candidateId
+    );
     
     constructor() {
         addCandidate("Candidate 1");
@@ -27,9 +31,10 @@ contract Election {
     }
 
     function vote(uint _candidateId) public {
-        require(!voters[msg.sender]);
-        require(_candidateId > 0 && _candidateId <= candidatesCount);
+        require(!voters[msg.sender], "Voters can only vote once.");
+        require(_candidateId > 0 && _candidateId <= candidatesCount, "Candidate ID must exist.");
         voters[msg.sender] = true;
         candidates[_candidateId].voteCount ++;
+        emit votedEvent(_candidateId);
     }
 }

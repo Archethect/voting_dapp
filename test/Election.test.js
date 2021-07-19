@@ -38,4 +38,31 @@ describe('Election',  () => {
        var voteCount = candidate[2];
        expect (voteCount).to.equal(1);
     });
+
+   /* it('throws an error for invalid votes', async function() {
+        [deployer, consumer1] = await ethers.getSigners();
+        const vote1 = await electionContract.connect(consumer1).vote(1);
+        await vote1.wait();
+        await expect(electionContract.connect(consumer1).vote(99)).to.be.revertedWith("Candidate ID must exist.");
+        await expect(electionContract.connect(consumer1).vote(2)).to.be.revertedWith("Voters can only vote once.");
+        const candidate1 = await electionContract.connect(deployer).candidates(1);
+        expect (candidate1[2]).to.equal(1);
+        const candidate2 = await electionContract.connect(deployer).candidates(2);
+        expect (candidate2[2]).to.equal(0);
+
+    });   */
+
+    it('allows a voter to cast a vote', async function() {
+        const candidateId = 1;
+        [deployer, consumer1] = await ethers.getSigners();
+        const voteTx = await electionContract.connect(consumer1).vote(candidateId);
+        const voteTxReceipt = await voteTx.wait();
+        expect(voteTxReceipt.events.length).to.equal(1);
+        expect(voteTxReceipt.events[0].event).to.equal("votedEvent");
+        await expect(electionContract.connect(deployer).vote(candidateId))
+            .to.emit(electionContract, "votedEvent")
+            .withArgs(candidateId);
+        await expect(electionContract.voters(deployer.getAddress()))
+        expect((await electionContract.candidates(candidateId))[2]).to.equal(2);
+    });
 });

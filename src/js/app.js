@@ -20,10 +20,13 @@ App = {
   },
 
   initContract: async function() {
-      abi = JSON.parse('[ { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" }, {"inputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ],"name": "candidates", "outputs": [ { "internalType": "uint256", "name": "id","type": "uint256" }, { "internalType": "string", "name": "name", "type":"string" }, { "internalType": "uint256", "name": "voteCount", "type":"uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs":[], "name": "candidatesCount", "outputs": [ { "internalType": "uint256","name": "", "type": "uint256" } ], "stateMutability": "view", "type":"function" } ]');
+      abi = JSON.parse('[{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"_candidateId","type":"uint256"}],"name":"votedEvent","type":"event"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"candidates","outputs":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"string","name":"name","type":"string"},{"internalType":"uint256","name":"voteCount","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"candidatesCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_candidateId","type":"uint256"}],"name":"vote","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"voters","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}]');
       await App.web3Provider.send("eth_requestAccounts", []);
       App.signer = App.web3Provider.getSigner();
-      App.contracts.Election = new ethers.Contract('0x71918aA91162326f1d024e8B57Ec294A718030F4', abi, App.signer);
+      App.contracts.Election = new ethers.Contract('0x3F0221FF41CAF141609f18BaF164Ab251A003fF2', abi, App.signer);
+      await App.contracts.Election.deployed();
+
+      App.listenForEvents();
 
       return App.render();
   },
@@ -46,6 +49,9 @@ App = {
       var candidatesResults = $("#candidatesResults");
       candidatesResults.empty();
 
+      var candidatesSelect = $('#candidatesSelect');
+      candidatesSelect.empty();
+
       for (var i = 1; i <= candidatesCount; i++) {
         var candidate = await electionInstance.candidates(i);
         var id = candidate[0];
@@ -55,11 +61,38 @@ App = {
         // Render candidate Result
         var candidateTemplate = "<tr><th>" + id + "</th><td>" + name + "</td><td>" + voteCount + "</td></tr>"
         candidatesResults.append(candidateTemplate);
+
+        var candidateOption = "<option value='" + id + "' >" + name + "</ option>"
+        candidatesSelect.append(candidateOption);
       }
+
+      var hasVoted = await electionInstance.voters(App.account);
+      if(hasVoted) {
+        $('form').hide();
+      }      
 
       loader.hide();
       content.show();
+  },
+
+  castVote: async function() {
+    $("#content").hide();
+    $("#loader").show();
+    var candidateId = $('#candidatesSelect').val();
+    const electionInstance = App.contracts.Election;
+    const voteTx = await electionInstance.vote(candidateId);
+    //await voteTx.wait();
+    //App.render();
+  },
+
+  listenForEvents: async function() {
+    const electionInstance = App.contracts.Election;
+    electionInstance.on("votedEvent", (candidateId) => {
+      console.log("New vote for candidate " + candidateId);
+      App.render();
+    }); 
   }
+
 };
 
 $(function() {
