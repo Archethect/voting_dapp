@@ -2,8 +2,11 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract Election {
+contract Election is Initializable, OwnableUpgradeable, UUPSUpgradeable {
 
     struct Candidate {
         uint id;
@@ -19,13 +22,12 @@ contract Election {
     event votedEvent (
         uint indexed _candidateId
     );
-    
-    constructor() {
-        addCandidate("Candidate 1");
-        addCandidate("Candidate 2");
+
+    function initialize() public initializer {
+        __Ownable_init_unchained();
     }
 
-    function addCandidate(string memory _name) private {
+    function addCandidate(string memory _name) public onlyOwner {
         candidatesCount++;
         candidates[candidatesCount] = Candidate(candidatesCount, _name, 0);
     }
@@ -37,4 +39,6 @@ contract Election {
         candidates[_candidateId].voteCount ++;
         emit votedEvent(_candidateId);
     }
+
+    function _authorizeUpgrade(address) internal override onlyOwner {}
 }

@@ -9,9 +9,14 @@ describe('Election',  () => {
         await deployments.fixture(['Election']);
         const { deployer } = await getNamedAccounts();
         electionContract = await ethers.getContract("Election", deployer);
+        const tx1 = await electionContract.addCandidate("Candidate 1");
+        const tx2 = await electionContract.addCandidate("Candidate 2");
+        await tx1.wait();
+        await tx2.wait();
+
     });
 
-    it('initializes with two candidates', async function () {
+    it('initializes with 2 candidates', async function () {
         expect (await electionContract.candidatesCount()).to.equal(2);
     });
 
