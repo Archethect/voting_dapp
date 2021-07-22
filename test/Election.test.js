@@ -19,7 +19,6 @@ describe('Election',  () => {
 
     it('initializes with 2 candidates', async function () {
         expect (await electionContract.candidatesCount()).to.equal(2);
-        console.log(await electionContract.owner());
     });
 
     it('initializes the candidates with the correct values', async function () {
@@ -46,7 +45,7 @@ describe('Election',  () => {
        expect (voteCount).to.equal(1);
     });
 
-   /* it('throws an error for invalid votes', async function() {
+    it('throws an error for invalid votes', async function() {
         [deployer, consumer1] = await ethers.getSigners();
         const vote1 = await electionContract.connect(consumer1).vote(1);
         await vote1.wait();
@@ -57,7 +56,7 @@ describe('Election',  () => {
         const candidate2 = await electionContract.connect(deployer).candidates(2);
         expect (candidate2[2]).to.equal(0);
 
-    });   */
+    });
 
     it('allows a voter to cast a vote', async function() {
         const candidateId = 1;
@@ -81,8 +80,6 @@ describe('Election',  () => {
         expect (candidate3.id).to.equal(3);
         expect (candidate3.name).to.equal("Candidate 3");
         expect (candidate3.voteCount).to.equal(0);
-        const tx2 = await electionContract.connect(consumer1).addCandidate("Candidate 4");
-        console.log(await tx2.wait());
         await expect(electionContract.connect(consumer1).addCandidate("Candidate 4")).to.be.revertedWith("Ownable: caller is not the owner");
     });
 });

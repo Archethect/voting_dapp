@@ -1,8 +1,8 @@
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Election from '../../deployments/localhost/Election_Implementation.json';
+import Election from '../../deployments/localhost/Election.json';
 
-const App = {
+window.App = {
   web3Provider: null,
   contracts: {},
   account: '0x0',
@@ -28,9 +28,8 @@ const App = {
       App.signer = App.web3Provider.getSigner();
       App.contracts.Election = new ethers.Contract(Election.address, Election.abi, App.signer);
       await App.contracts.Election.deployed();
-    console.log(App.contracts.Election.signer);
-    console.log(await App.signer.getAddress());
-
+      var contractOwner = await App.contracts.Election.owner()
+      console.log(contractOwner);
       App.listenForEvents();
 
       return App.render();
@@ -43,7 +42,7 @@ const App = {
     var candidateBlock = $("#addCandidate");
 
     loader.show();
-    candidateBlock.hide();
+    //candidateBlock.hide();
     content.hide();
 
     App.account = await App.signer.getAddress();
@@ -79,8 +78,6 @@ const App = {
       }
 
       var contractOwner = await electionInstance.owner()
-    console.log(contractOwner);
-    console.log(App.account);
       if(contractOwner == App.account) {
         candidateBlock.show();
       }

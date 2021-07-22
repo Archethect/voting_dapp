@@ -10,6 +10,7 @@ module.exports =
                 //Workaround to create a proxy with same arguments in constructor as default supported proxies by hardhat-deploy.
                 //Change when hardhat deploy has UUPS support (ERC1967Proxy).
                 proxyContract: "MyProxy",
+                owner: deployer,
                 execute: {
                     init: {
                         methodName: "initialize",
