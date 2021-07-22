@@ -1,4 +1,8 @@
-App = {
+import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Election from '../../deployments/localhost/Election_Implementation.json';
+
+const App = {
   web3Provider: null,
   contracts: {},
   account: '0x0',
@@ -20,11 +24,12 @@ App = {
   },
 
   initContract: async function() {
-      abi = JSON.parse('[{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"previousAdmin","type":"address"},{"indexed":false,"internalType":"address","name":"newAdmin","type":"address"}],"name":"AdminChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"beacon","type":"address"}],"name":"BeaconUpgraded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"implementation","type":"address"}],"name":"Upgraded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"_candidateId","type":"uint256"}],"name":"votedEvent","type":"event"},{"inputs":[{"internalType":"string","name":"_name","type":"string"}],"name":"addCandidate","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"candidates","outputs":[{"internalType":"uint256","name":"id","type":"uint256"},{"internalType":"string","name":"name","type":"string"},{"internalType":"uint256","name":"voteCount","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"candidatesCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"initialize","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newImplementation","type":"address"}],"name":"upgradeTo","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newImplementation","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"upgradeToAndCall","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_candidateId","type":"uint256"}],"name":"vote","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"voters","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}]');
       await App.web3Provider.send("eth_requestAccounts", []);
       App.signer = App.web3Provider.getSigner();
-      App.contracts.Election = new ethers.Contract('0xB31c72b802dc1a60E506fbd0267Dd4e1fB2B9e4E', abi, App.signer);
+      App.contracts.Election = new ethers.Contract(Election.address, Election.abi, App.signer);
       await App.contracts.Election.deployed();
+    console.log(App.contracts.Election.signer);
+    console.log(await App.signer.getAddress());
 
       App.listenForEvents();
 
@@ -35,8 +40,10 @@ App = {
     var electionInstance;
     var loader = $("#loader");
     var content = $("#content");
+    var candidateBlock = $("#addCandidate");
 
     loader.show();
+    candidateBlock.hide();
     content.hide();
 
     App.account = await App.signer.getAddress();
@@ -69,7 +76,14 @@ App = {
       var hasVoted = await electionInstance.voters(App.account);
       if(hasVoted) {
         $('#castVote').hide();
-      }      
+      }
+
+      var contractOwner = await electionInstance.owner()
+    console.log(contractOwner);
+    console.log(App.account);
+      if(contractOwner == App.account) {
+        candidateBlock.show();
+      }
 
       loader.hide();
       content.show();
@@ -92,7 +106,9 @@ App = {
   },
 
   addCandidate: async function() {
-
+    var candidateName = $('#candidateName').val();
+    const electionInstance = App.contracts.Election;
+    await electionInstance.addCandidate(candidateName);
   }
 
 };

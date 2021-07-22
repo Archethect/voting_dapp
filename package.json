@@ -3,15 +3,25 @@
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@^0.3.0-beta.10",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@popperjs/core": "^2.9.2",
+    "bootstrap": "^5.0.2",
     "chai": "^4.3.4",
+    "chai-ethers": "0.0.1",
+    "copy-webpack-plugin": "^9.0.1",
+    "css-loader": "^6.2.0",
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.4.1",
+    "file-loader": "^6.2.0",
     "hardhat": "^2.4.3",
     "hardhat-deploy": "^0.8.11",
-    "lite-server": "^2.6.1"
+    "style-loader": "^3.2.1",
+    "webpack": "^5.46.0",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^3.11.2"
   },
   "scripts": {
-    "dev": "lite-server"
+    "build": "webpack",
+    "dev": "webpack serve"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.2.0",

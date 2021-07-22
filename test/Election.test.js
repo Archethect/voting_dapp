@@ -1,5 +1,6 @@
-const { ethers, deployments, getNamedAccounts } = require('hardhat');
 const { expect } = require("chai");
+const { ethers, deployments, getNamedAccounts } = require('hardhat');
+
 
 describe('Election',  () => {
 
@@ -18,6 +19,7 @@ describe('Election',  () => {
 
     it('initializes with 2 candidates', async function () {
         expect (await electionContract.candidatesCount()).to.equal(2);
+        console.log(await electionContract.owner());
     });
 
     it('initializes the candidates with the correct values', async function () {
@@ -69,5 +71,18 @@ describe('Election',  () => {
             .withArgs(candidateId);
         await expect(electionContract.voters(deployer.getAddress()))
         expect((await electionContract.candidates(candidateId))[2]).to.equal(2);
+    });
+
+    it('prevents consumers to create candidates', async function() {
+        [deployer, consumer1] = await ethers.getSigners();
+        const tx1 = await electionContract.addCandidate("Candidate 3");
+        await tx1.wait();
+        const candidate3 = await electionContract.candidates(3);
+        expect (candidate3.id).to.equal(3);
+        expect (candidate3.name).to.equal("Candidate 3");
+        expect (candidate3.voteCount).to.equal(0);
+        const tx2 = await electionContract.connect(consumer1).addCandidate("Candidate 4");
+        console.log(await tx2.wait());
+        await expect(electionContract.connect(consumer1).addCandidate("Candidate 4")).to.be.revertedWith("Ownable: caller is not the owner");
     });
 });
