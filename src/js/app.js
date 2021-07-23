@@ -28,8 +28,6 @@ window.App = {
       App.signer = App.web3Provider.getSigner();
       App.contracts.Election = new ethers.Contract(Election.address, Election.abi, App.signer);
       await App.contracts.Election.deployed();
-      var contractOwner = await App.contracts.Election.owner()
-      console.log(contractOwner);
       App.listenForEvents();
 
       return App.render();
