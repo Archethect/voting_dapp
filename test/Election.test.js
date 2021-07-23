@@ -46,11 +46,11 @@ describe('Election',  () => {
     });
 
     it('throws an error for invalid votes', async function() {
-        [deployer, consumer1] = await ethers.getSigners();
+        [deployer, consumer1, consumer2] = await ethers.getSigners();
         const vote1 = await electionContract.connect(consumer1).vote(1);
         await vote1.wait();
-        await expect(electionContract.connect(consumer1).vote(99)).to.be.revertedWith("Candidate ID must exist.");
         await expect(electionContract.connect(consumer1).vote(2)).to.be.revertedWith("Voters can only vote once.");
+        await expect(electionContract.connect(consumer2).vote(99)).to.be.revertedWith("Candidate ID must exist.");
         const candidate1 = await electionContract.connect(deployer).candidates(1);
         expect (candidate1[2]).to.equal(1);
         const candidate2 = await electionContract.connect(deployer).candidates(2);

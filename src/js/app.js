@@ -42,7 +42,7 @@ window.App = {
     var candidateBlock = $("#addCandidate");
 
     loader.show();
-    //candidateBlock.hide();
+    candidateBlock.hide();
     content.hide();
 
     App.account = await App.signer.getAddress();
@@ -87,8 +87,6 @@ window.App = {
   },
 
   castVote: async function() {
-    $("#content").hide();
-    $("#loader").show();
     var candidateId = $('#candidatesSelect').val();
     const electionInstance = App.contracts.Election;
     await electionInstance.vote(candidateId);
@@ -99,7 +97,11 @@ window.App = {
     electionInstance.on("votedEvent", (candidateId) => {
       console.log("New vote for candidate " + candidateId);
       App.render();
-    }); 
+    });
+    electionInstance.on("addCandidateEvent", (candidateCount) => {
+      console.log("New candidate added with ID: " + candidateCount);
+      App.render();
+    });
   },
 
   addCandidate: async function() {

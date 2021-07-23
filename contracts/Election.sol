@@ -23,6 +23,11 @@ contract Election is Initializable, OwnableUpgradeable, UUPSUpgradeable {
         uint indexed _candidateId
     );
 
+    event addCandidateEvent (
+        uint indexed candidatesCount
+    );
+
+
     function initialize() public initializer {
         __Ownable_init_unchained();
     }
@@ -30,6 +35,7 @@ contract Election is Initializable, OwnableUpgradeable, UUPSUpgradeable {
     function addCandidate(string memory _name) public onlyOwner {
         candidatesCount++;
         candidates[candidatesCount] = Candidate(candidatesCount, _name, 0);
+        emit addCandidateEvent(candidatesCount);
     }
 
     function vote(uint _candidateId) public {
